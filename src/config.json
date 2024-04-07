@@ -1,5 +1,5 @@
 {
-    "NIC_INTERFACE": "ens2f1",
+    "NIC_INTERFACE": "ens2f1np1",
     "NIC_LOCAL_SOCKET": 0,
     "NIC_IIO_STACK": 2,
     "MBA_LEVEL_1_CORE": 29,

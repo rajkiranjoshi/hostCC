@@ -1,7 +1,7 @@
 #ifndef VARS_H
 #define VARS_H
 
-#define NIC_INTERFACE "ens2f1"
+#define NIC_INTERFACE "ens2f1np1"
 #define NIC_LOCAL_SOCKET 0
 #define NIC_IIO_STACK 2
 #define MBA_LEVEL_1_CORE 29

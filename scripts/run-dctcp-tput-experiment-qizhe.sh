@@ -52,7 +52,7 @@ mlc_dur=100
 ring_buffer=1024
 buf=1
 bandwidth="100g"
-num_runs=1
+num_runs=10
 home="/home/benny"
 setup_dir=$home/hostCC/utils
 exp_dir=$home/hostCC/utils/tcp
@@ -206,6 +206,7 @@ sudo bash setup-envir.sh -i $server_intf -a $server -m $mtu -d $ddio --ring_buff
 cd -
 
 echo "starting server instances..."
+sudo bpftrace -e 'kprobe:alloc_iova { @num_calls = count(); }' > bpftrace.log &
 cd $exp_dir
 sudo bash run-netapp-tput.sh -m server -S $num_servers -o $exp-RUN-$j -p $init_port -c $cpu_mask &
 sleep 2
@@ -240,6 +241,8 @@ sshpass -p $password scp $uname@$ssh_hostname:$setup_dir/reports/$exp-RUN-$j/ret
 
 sleep $(($dur * 2))
 
+killall bpftrace 
+mv bpftrace.log $setup_dir/reports/$exp-RUN-$j/bpftrace.rpt &
 #post-run cleanup
 cleanup
 done

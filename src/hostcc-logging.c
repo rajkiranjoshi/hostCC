@@ -132,7 +132,7 @@ void update_log_pcie(int c){
   LOG_PCIE[log_index_pcie % LOG_SIZE].s_avg_pcie_bw_rd = (smoothed_avg_pcie_bw_rd >> 10);
 	LOG_PCIE[log_index_pcie % LOG_SIZE].avg_pcie_bw_rd = latest_avg_pcie_bw_rd;
   if(app_pid_task != NULL){
-	  LOG_PCIE[log_index_pcie % LOG_SIZE].task_state = app_pid_task->state;
+	  LOG_PCIE[log_index_pcie % LOG_SIZE].task_state = app_pid_task->__state;
   }
 	log_index_pcie++;
 }

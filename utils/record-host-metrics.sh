@@ -1,3 +1,5 @@
+#!/bin/bash
+
 help()
 {
     echo "Usage: record-host-metrics [ -H | --home (home directory)]
@@ -32,18 +34,18 @@ fi
 eval set -- "$OPTS"
 
 #default values
-home='/home/saksham'
+home='/home/midhul'
 outdir='test'
 dur=30
 type=1
-cpu_util=1  
+cpu_util=0  
 cores=0
 retx=0
 tcplog=0
 flame=0
-bw=1
-pcie=1
-membw=1
+bw=0
+pcie=0
+membw=0
 iio=0
 pfc=0
 intf=ens2f0
@@ -202,7 +204,7 @@ function collect_pfc() {
     echo "print(($pause_after - $pause_before)/$dur)" | lua > reports/$outdir/pause.rpt
 
     # echo $pause_duration_before, $pause_duration_after
-    echo "print(($pause_duration_after - $pause_duration_before)/$dur)" | lua >> reports/$outdir/pause.rpt
+    echo "print(($pause_duration_after - $pause_duration_before)/$dur/1e6)" | lua >> reports/$outdir/pause.rpt
 }
 
 

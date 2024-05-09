@@ -52,9 +52,6 @@ mlc_cores="none"
 mlc_dur=100
 num_runs=2
 home="/home/saksham"
-setup_dir=$home/hostCC/utils
-exp_dir=$home/hostCC/utils/rdma
-mlc_dir=$home/mlc/Linux
 
 echo -n "Enter SSH Username for client:"
 read uname
@@ -140,6 +137,10 @@ do
   esac
 done
 
+setup_dir=$home/hostCC/utils
+exp_dir=$home/hostCC/utils/rdma
+mlc_dir=$home/mlc/Linux
+
 
 # Function to display the progress bar
 function progress_bar() {
@@ -192,7 +193,7 @@ fi
 #### setup and start servers
 echo "setting up server config..."
 cd $setup_dir
-sudo bash setup-envir.sh -i $server_intf -a $server -m $mtu -d $ddio -f 1 -r 1 -p 1
+sudo bash setup-envir.sh -H $home -i $server_intf -a $server -m $mtu -d $ddio -f 1 -r 1 -p 1
 cd -
 
 echo "starting server instances..."
@@ -203,7 +204,7 @@ cd -
 
 #### setup and start clients
 echo "setting up and starting clients..."
-sshpass -p $password ssh $uname@$addr 'screen -dmS client_session sudo bash -c "cd '$setup_dir'; sudo bash setup-envir.sh -i '$client_intf' -a '$client' -m '$mtu' -d '$ddio' -f 1 -r 1 -p 1; cd '$exp_dir'; sudo bash run-netapp-tput.sh -m client -a '$server' -d '$client_dev' -t '$txn' -D '$(($dur * 5))' -o '$exp'-RUN-'$j' -s '$size' -M '$mtu'; exec bash"'
+sshpass -p $password ssh $uname@$addr 'screen -dmS client_session sudo bash -c "cd '$setup_dir'; sudo bash setup-envir.sh -H '$home' -i '$client_intf' -a '$client' -m '$mtu' -d '$ddio' -f 1 -r 1 -p 1; cd '$exp_dir'; sudo bash run-netapp-tput.sh -m client -a '$server' -d '$client_dev' -t '$txn' -D '$(($dur * 5))' -o '$exp'-RUN-'$j' -s '$size' -M '$mtu'; exec bash"'
 
 
 #### warmup
@@ -214,7 +215,7 @@ progress_bar 10 1
 ##start receiver side logging
 echo "starting logging at server..."
 cd $setup_dir
-sudo bash record-host-metrics.sh -t 1 -i $server_intf -o $exp-RUN-$j --bw 1 --cpu_util 1 --pcie 1 --membw 1 --iio 1 --pfc 1 --dur $dur
+#sudo bash record-host-metrics.sh -H $home -t 1 -i $server_intf -o $exp-RUN-$j --bw 1 --cpu_util 1 --pcie 1 --membw 1 --iio 1 --pfc 1 --dur $dur
 echo "done logging..."
 cd -
 
@@ -237,7 +238,7 @@ else
     #### setup and start servers
     echo "setting up server config..."
     cd $setup_dir
-    sudo bash setup-envir.sh -i $server_intf -a $server -m $mtu -d $ddio -f 1 -r 1 -p 1
+    sudo bash setup-envir.sh -H $home -i $server_intf -a $server -m $mtu -d $ddio -f 1 -r 1 -p 1
     cd -
 
     echo "starting server instances..."
@@ -248,7 +249,7 @@ else
 
     #### setup and start clients
     echo "setting up and starting clients..."
-    sshpass -p $password ssh $uname@$addr 'screen -dmS client_session sudo bash -c "cd '$setup_dir'; sudo bash setup-envir.sh -i '$client_intf' -a '$client' -m '$mtu' -d '$ddio' -f 1 -r 1 -p 1; cd '$exp_dir'; sudo bash run-netapp-tput.sh -m client -a '$server' -d '$client_dev' -t '$txn' -D '$(($dur * 5))' -o '$exp'-MLCRUN-'$j' -s '$size' -M '$mtu'; exec bash"'
+    sshpass -p $password ssh $uname@$addr 'screen -dmS client_session sudo bash -c "cd '$setup_dir'; sudo bash setup-envir.sh -H '$home' -i '$client_intf' -a '$client' -m '$mtu' -d '$ddio' -f 1 -r 1 -p 1; cd '$exp_dir'; sudo bash run-netapp-tput.sh -m client -a '$server' -d '$client_dev' -t '$txn' -D '$(($dur * 5))' -o '$exp'-MLCRUN-'$j' -s '$size' -M '$mtu'; exec bash"'
 
     #### start MLC
     echo "starting MLC..."

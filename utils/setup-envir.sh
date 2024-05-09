@@ -28,7 +28,7 @@ fi
 eval set -- "$OPTS"
 
 #default values
-home='/home/saksham'
+home='/home/midhul'
 mtu=4000
 ddio=0
 intf="ens2f1"

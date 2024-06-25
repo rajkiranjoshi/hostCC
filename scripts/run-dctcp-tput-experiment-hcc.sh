@@ -45,7 +45,7 @@ num_clients=4
 init_port=3000
 ddio=0
 mtu=4000
-dur=15
+dur=10
 cpu_mask="4,8,12,16"
 mlc_cores="none"
 mlc_dur=100
@@ -177,12 +177,6 @@ function cleanup() {
     sudo echo 0 > /sys/kernel/debug/tracing/tracing_on
     sudo echo 0 > /sys/kernel/debug/tracing/options/overwrite
     sudo echo 5000 > /sys/kernel/debug/tracing/buffer_size_kb
-    # reset interface
-    sudo ip link set $server_intf down
-    sleep 2
-    sudo ip link set $server_intf up
-    sleep 2
-    sudo bash /home/benny/restart.sh
 }
 
 
@@ -194,22 +188,35 @@ echo "running instance $j"
 cleanup
 
 #### start MLC
+sudo bash ../utils/set_mba_levels.sh
+sudo dmesg --clear
+cd /home/benny/hostCC/src
 if [ "$mlc_cores" = "none" ]; then
     echo "No MLC instance used..."
+    echo "sudo insmod hostcc-module.ko mode=0 target_iio_wr_thresh=70 target_pcie_thresh=84"
+    sudo rmmod hostcc-module.ko
+    sleep 5
+    sudo insmod hostcc-module.ko mode=0 target_iio_wr_thresh=70 target_pcie_thresh=84 
     # Perform actions for "none" input
 else
     echo "starting MLC..."
     $mlc_dir/mlc --loaded_latency -T -d0 -e -k$mlc_cores -j0 -b1g -t10000 -W2 &> mlc.log &
     ## wait until MLC starts sending memory traffic at full rate
     echo "waiting for MLC for start..."
-    progress_bar 30 1
+    echo "sudo insmod hostcc-module.ko target_pcie_thresh=84 target_iio_wr_thresh=85 target_pid=$(pidof mlc)"
+    sudo rmmod hostcc-module.ko
+    sleep 5
+    sudo insmod hostcc-module.ko mode=0 target_iio_wr_thresh=70 target_pcie_thresh=84 target_pid=$(pidof mlc)
+    progress_bar 15 1
 fi
+
+sleep 10 #give time for hostcc module to load
+cd -
 
 #### setup and start servers
 echo "setting up server config..."
-sudo bash /home/benny/restart.sh
 cd $setup_dir
-sudo bash setup-envir.sh -i $server_intf -a $server -m $mtu -d $ddio --ring_buffer $ring_buffer --buf $buf -f 1 -r 0 -p 0 -e 1 -o 1
+sudo bash setup-envir.sh -i $server_intf -a $server -m $mtu -d $ddio --ring_buffer $ring_buffer --buf $buf -f 1 -r 0 -p 0 -e 0 -o 1
 cd -
 
 echo "starting server instances..."
@@ -224,7 +231,7 @@ sudo echo 1 > /sys/kernel/debug/tracing/tracing_on
 
 #### setup and start clients
 echo "setting up and starting clients..."
-sshpass -p $password ssh $uname@$ssh_hostname 'screen -dmS client_session sudo bash -c "cd '$setup_dir'; sudo bash setup-envir.sh -i '$client_intf' -a '$client' -m '$mtu' -d '$ddio' --ring_buffer '$ring_buffer' --buf '$buf' -f 1 -r 0 -p 0 -e 1 -o 1; cd '$exp_dir'; sudo bash run-netapp-tput.sh -m client -a '$server' -C '$num_clients' -S '$num_servers' -o '$exp'-RUN-'$j' -p '$init_port' -c '$cpu_mask' -b '$bandwidth'; exec bash"'
+sshpass -p $password ssh $uname@$ssh_hostname 'screen -dmS client_session sudo bash -c "cd '$setup_dir'; sudo bash setup-envir.sh -i '$client_intf' -a '$client' -m '$mtu' -d '$ddio' --ring_buffer '$ring_buffer' --buf '$buf' -f 1 -r 0 -p 0 -e 0 -o 1; cd '$exp_dir'; sudo bash run-netapp-tput.sh -m client -a '$server' -C '$num_clients' -S '$num_servers' -o '$exp'-RUN-'$j' -p '$init_port' -c '$cpu_mask' -b '$bandwidth'; exec bash"'
 
 #### warmup
 echo "warming up..."
@@ -253,8 +260,11 @@ done
 
 if [ "$mlc_cores" = "none" ]; then
     echo "No MLC instance used... Skipping MLC throughput collection"
+    sudo rmmod hostcc-module.ko
+    dmesg > /home/benny/pcie.log
 else
-    echo "MLC cores detected.. Still skipping MLC throughput collection"
+    sudo rmmod hostcc-module.ko
+    dmesg > /home/benny/pcie.log
    # #now run very long network app, to find out MLC tput
    # for ((j = 0; j < $num_runs; j += 1)); do
    # echo "running instance $j"
@@ -291,11 +301,12 @@ else
    # done
 fi
 
+sudo python3 collect-tput-stats.py $exp $num_runs 0
 #collect info from all runs
-if [ "$mlc_cores" = "none" ]; then
-    sudo python3 collect-tput-stats.py $exp $num_runs 0
-else
-    sudo python3 collect-tput-stats.py $exp $num_runs 1
-fi
+#if [ "$mlc_cores" = "none" ]; then
+#    sudo python3 collect-tput-stats.py $exp $num_runs 0
+#else
+#    sudo python3 collect-tput-stats.py $exp $num_runs 1
+#fi
 
 

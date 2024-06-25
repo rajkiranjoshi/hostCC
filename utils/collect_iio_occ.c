@@ -29,7 +29,7 @@
 #define VTD_OCC_VAL_L3_MISS 0x400000401041
 #define VTD_OCC_VAL_TLB_MISS 0x400000402041
 #define CORE 28
-#define NUM_LPROCS 64
+#define NUM_LPROCS 32
 
 int msr_fd[NUM_LPROCS];		// msr device driver files will be read from various functions, so make descriptors global
 

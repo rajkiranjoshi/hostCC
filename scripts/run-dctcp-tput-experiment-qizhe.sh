@@ -52,7 +52,7 @@ mlc_dur=100
 ring_buffer=1024
 buf=1
 bandwidth="100g"
-num_runs=10
+num_runs=1
 home="/home/benny"
 setup_dir=$home/hostCC/utils
 exp_dir=$home/hostCC/utils/tcp
@@ -202,7 +202,7 @@ fi
 #### setup and start servers
 echo "setting up server config..."
 cd $setup_dir
-sudo bash setup-envir.sh -i $server_intf -a $server -m $mtu -d $ddio --ring_buffer $ring_buffer --buf $buf -f 1 -r 0 -p 0 -e 1 -o 1
+sudo bash setup-envir-qizhe.sh -i $server_intf -a $server -m $mtu -d $ddio --ring_buffer $ring_buffer --buf $buf -f 1 -r 0 -p 0 -e 1 -o 1
 cd -
 
 echo "starting server instances..."
@@ -239,7 +239,7 @@ cd -
 #transfer sender-side info back to receiver
 sshpass -p $password scp $uname@$ssh_hostname:$setup_dir/reports/$exp-RUN-$j/retx.rpt $setup_dir/reports/$exp-RUN-$j/retx.rpt
 
-sleep $(($dur * 2))
+sleep $(($dur * 90))
 
 killall bpftrace 
 mv bpftrace.log $setup_dir/reports/$exp-RUN-$j/bpftrace.rpt &
@@ -260,7 +260,7 @@ else
     #### setup and start servers
     echo "setting up server config..."
     cd $setup_dir
-    sudo bash setup-envir.sh -i $server_intf -a $server -m $mtu -d $ddio --ring_buffer $ring_buffer --buf $buf -f 1 -r 0 -p 0 -e 1 -o 1
+    sudo bash setup-envir-qizhe.sh -i $server_intf -a $server -m $mtu -d $ddio --ring_buffer $ring_buffer --buf $buf -f 1 -r 0 -p 0 -e 1 -o 1
     cd -
 
     echo "starting server instances..."

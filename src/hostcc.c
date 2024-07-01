@@ -155,7 +155,7 @@ static int __init hostcc_init(void) {
   queue_work_on(PCIE_CORE,poll_pcie_queue, &poll_pcie);
 
   //Start ECN marking
-  nf_init();
+  //nf_init();
 
   return 0;
 }
@@ -164,7 +164,7 @@ static void __exit hostcc_exit(void) {
   terminate_hcc_logging = true;
   msleep(5000);
   terminate_hcc = true;
-  nf_exit();
+  //nf_exit();
   poll_iio_exit();
   poll_pcie_exit();
 }

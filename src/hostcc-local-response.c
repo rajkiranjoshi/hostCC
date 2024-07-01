@@ -161,13 +161,13 @@ void host_local_response(void){
     //Rx side logic
     if((smoothed_avg_pcie_bw) < (target_pcie_thresh << 10)){
         if(latest_measured_avg_occ_wr > target_iio_wr_thresh){
-            increase_mba_val();
+            //increase_mba_val();
         }
     }
 
     if((smoothed_avg_pcie_bw) > (target_pcie_thresh << 10)){
         if(latest_measured_avg_occ_wr < target_iio_wr_thresh){
-            decrease_mba_val();
+            //decrease_mba_val();
         }
     }
   } else{

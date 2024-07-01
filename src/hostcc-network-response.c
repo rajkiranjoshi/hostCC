@@ -51,13 +51,14 @@ unsigned int nf_markecn_handler_rx(void *priv, struct sk_buff *skb, const struct
 		int cpu = get_cpu();
     sample_counters_nf(cpu);
     if(!terminate_hcc_logging){
-      update_log_nf(cpu);
+      //update_log_nf(cpu);
     }
     #if !(NO_ECN_MARKING)
     if(latest_measured_avg_occ_wr_nf > target_iio_wr_thresh){
         iph->tos = iph->tos | 0x03;
         iph->check = 0;
-        ip_send_check(iph);
+	//printk("ECN MARKING");
+        //ip_send_check(iph);
     }
     #endif
 		spin_unlock(&etx_spinlock_rx);
@@ -87,7 +88,7 @@ unsigned int nf_markecn_handler_tx(void *priv, struct sk_buff *skb, const struct
 		int cpu = get_cpu();
     sample_counters_nf(cpu);
     if(!terminate_hcc_logging){
-      update_log_nf(cpu);
+      //update_log_nf(cpu);
     }
     #if !(NO_ECN_MARKING)
     if(latest_measured_avg_occ_rd_nf > target_iio_rd_thresh){
@@ -126,7 +127,7 @@ int nf_init(void) {
       nf_register_net_hook(&init_net, nf_markecn_ops_tx);
     }
   }
-  init_nf_log();
+  //init_nf_log();
 	return 0;
 }
 
@@ -145,6 +146,6 @@ void nf_exit(void) {
   }
   printk(KERN_INFO "Ending ECN Marking");
   if(ECN_LOGGING){
-    dump_nf_log();
+    //dump_nf_log();
   }
 }

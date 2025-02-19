@@ -132,7 +132,7 @@ void update_log_pcie(int c){
   LOG_PCIE[log_index_pcie % LOG_SIZE].s_avg_pcie_bw_rd = (smoothed_avg_pcie_bw_rd >> 10);
 	LOG_PCIE[log_index_pcie % LOG_SIZE].avg_pcie_bw_rd = latest_avg_pcie_bw_rd;
   if(app_pid_task != NULL){
-	  LOG_PCIE[log_index_pcie % LOG_SIZE].task_state = app_pid_task->state;
+	  LOG_PCIE[log_index_pcie % LOG_SIZE].task_state = app_pid_task->__state; // data structure changed
   }
 	log_index_pcie++;
 }
@@ -156,7 +156,7 @@ void init_pcie_log(void){
 void dump_pcie_log(void){
   int i=0;
   while(i<LOG_SIZE){
-      printk("PCIE:%d,%lld,%lld,%d,%d,%d,%d,%d,%d,%d,%d,%lld,%lld,%x\n",
+      printk("PCIE:%d,%lld,%lld,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
       i,
       LOG_PCIE[i].l_tsc,
       LOG_PCIE[i].td_ns,

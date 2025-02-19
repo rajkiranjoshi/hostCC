@@ -63,7 +63,7 @@ void poll_iio_exit(void) {
     //dump log info
     printk(KERN_INFO "Ending IIO Occupancy measurement");
     flush_workqueue(poll_iio_queue);
-    flush_scheduled_work();
+    // flush_scheduled_work();
     destroy_workqueue(poll_iio_queue);
     if(mode == 0){
       if(IIO_LOGGING){
@@ -107,18 +107,18 @@ void thread_fun_poll_iio(struct work_struct *work) {
 
 void poll_pcie_init(void) {
     #if USE_PROCESS_SCHEDULER
-    init_mba_process_scheduler();
+    init_mba_process_scheduler(); // RJ question
     #endif
     //initialize the log
-    printk(KERN_INFO "Starting PCIe Bandwidth Measurement");
+    printk(KERN_INFO "Starting PCIe Bandwidth Measurement\n");
     init_pcie_log();
 }
 
 void poll_pcie_exit(void) {
     //dump log info
-    printk(KERN_INFO "Ending PCIe Bandwidth Measurement");
+    printk(KERN_INFO "Ending PCIe Bandwidth Measurement\n");
     flush_workqueue(poll_pcie_queue);
-    flush_scheduled_work();
+    // flush_scheduled_work();
     destroy_workqueue(poll_pcie_queue);
     if(latest_mba_val > 0){
         latest_mba_val = 0;
@@ -162,7 +162,7 @@ void thread_fun_poll_pcie(struct work_struct *work) {
 }
 
 static int __init hostcc_init(void) {
-  printk("Initializing hostcc");
+  printk("-------------- Initializing hostcc --------------\n");
   // create sysfs interface for taget_pcie_thresh
   my_kobj = kobject_create_and_add("hostcc", kernel_kobj);
   if (!my_kobj)
@@ -172,7 +172,7 @@ static int __init hostcc_init(void) {
       kobject_put(my_kobj);
       return -ENOMEM;
   }
-  //Start IIO occupancy measurement
+  /* //Start IIO occupancy measurement
   poll_iio_queue = alloc_workqueue("poll_iio_queue",  WQ_HIGHPRI | WQ_CPU_INTENSIVE, 0);
   if (!poll_iio_queue) {
       printk(KERN_ERR "Failed to create IIO workqueue\n");
@@ -180,7 +180,7 @@ static int __init hostcc_init(void) {
   }
   INIT_WORK(&poll_iio, thread_fun_poll_iio);
   poll_iio_init();
-  queue_work_on(IIO_CORE,poll_iio_queue, &poll_iio);
+  queue_work_on(IIO_CORE,poll_iio_queue, &poll_iio); */
 
   //Start PCIe bandwidth measurement
   poll_pcie_queue = alloc_workqueue("poll_pcie_queue", WQ_HIGHPRI | WQ_CPU_INTENSIVE, 0);
@@ -205,8 +205,9 @@ static void __exit hostcc_exit(void) {
   msleep(5000);
   terminate_hcc = true;
   nf_exit();
-  poll_iio_exit();
+  // poll_iio_exit();
   poll_pcie_exit();
+  printk("-------------- Exiting hostcc --------------\n");
 }
 
 module_init(hostcc_init);

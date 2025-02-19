@@ -53,10 +53,12 @@ void init_mba_process_scheduler(void){
       printk(KERN_INFO "Found task");
       struct sched_param param;
       param.sched_priority = 99;
-      int result = sched_setscheduler(app_pid_task, SCHED_FIFO, &param);
-      if (result == -1) {
-          printk(KERN_ALERT "Failed to set scheduling policy and priority\n");
-      }
+      // int result = sched_setscheduler(app_pid_task, SCHED_FIFO, &param); // deprecated in newer kernels 
+      sched_set_fifo(app_pid_task);
+
+      //   if (result == -1) {
+      //       printk(KERN_ALERT "Failed to set scheduling policy and priority\n");
+      //   }
     }
 }
 
